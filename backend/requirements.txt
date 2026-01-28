@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+pgvector
+python-dotenv
+langdetect
+requests
+pydantic-settings
+openai
+alembic
+slowapi
+pypdf
+python-docx
+python-multipart

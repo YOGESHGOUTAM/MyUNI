@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# VSCode
+.vscode/
+
+# Environment files
+.env
+.env.*
+*.key
+*.pem
+
+# Alembic
+alembic/versions/*.pyc
+alembic/versions/__pycache__/
+
+# Docker
+*.pid
+*.sock
+
+# Database artifacts
+*.db
+*.sqlite3
+
+# __local configs__
+config.local.json
+
+# Byte-compiled / caches
+build/
+dist/
+.eggs/
+*.egg-info/
+site/
+
+# pytest
+.cache/
+.pytest_cache/
+cover/
+
+# Mac/Windows noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+
+# Uploads / media
+uploads/
+media/
+
+# IDE trash
+.idea/
+*.iml

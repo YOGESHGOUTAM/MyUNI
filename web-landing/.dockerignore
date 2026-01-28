@@ -1,0 +1,21 @@
+# local dev
+node_modules
+dist
+dist-ssr
+
+# config
+.env
+.env.*
+*.env.local
+
+# editors
+.vscode
+.idea
+.DS_Store
+
+# VCS
+.git
+.gitignore
+
+# logs
+*.log

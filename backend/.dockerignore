@@ -1,0 +1,24 @@
+# VENV
+venv
+.env
+.env.*
+*.env
+*.env.local
+
+# EDITOR/OS
+.vscode
+.idea
+.DS_Store
+
+# VCS
+.git
+.gitignore
+
+# PYTHON CACHE
+__pycache__
+*.pyc
+*.pyo
+
+# LOGS
+*.log
+logs/
