@@ -1,3 +1,4 @@
+import os 
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -43,7 +44,8 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = os.getenv("DATABASE_URL",
+                    config.get_main_option("sqlalchemy.url"))
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -62,12 +64,14 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
+    config_section=config.get_section(config.config_ini_section)
+    config_section["sqlalchemy.url"]=os.getenv(
+        "DATABASE_URL",
+        config.get_main_option("sqlalchemy.url")
     )
-
+    conncetable=engine_from_config(
+        config_section,
+    )
     with connectable.connect() as connection:
         context.configure(
             connection=connection, target_metadata=target_metadata
