@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     LLM_MODEL: str = "gpt-4o-mini"  # default (change if needed)
     EMBEDDING_API_URL: str | None = None
     EMBEDDING_API_KEY: str | None = None
-    EMBEDDING_MODEL: str = "text-embedding-3-large"
+    EMBEDDING_MODEL: str = "text-embedding-3-small"
 
     class Config:
         env_file = ".env"
