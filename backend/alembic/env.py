@@ -69,7 +69,7 @@ def run_migrations_online() -> None:
         "DATABASE_URL",
         config.get_main_option("sqlalchemy.url")
     )
-    conncetable=engine_from_config(
+    connectable=engine_from_config(
         config_section,
     )
     with connectable.connect() as connection:
