@@ -1,3 +1,7 @@
+import { APP_ONE } from "../config.js";
+import {APP_TWO} from "../config.js";
+
+
 import React from 'react';
 import {
   MessageSquare,
@@ -79,7 +83,7 @@ const LandingPage = () => {
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center" id="access">
           <a
-            href="http://localhost:5173/"
+            href= {APP_ONE}
             className="group bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl font-medium transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
           >
             <Users size={20} />
@@ -87,7 +91,7 @@ const LandingPage = () => {
             <ArrowRight size={20} className="group-hover:translate-x-1 transition" />
           </a>
           <a
-            href="http://localhost:5174/"
+            href={APP_TWO}
             className="group bg-slate-700 hover:bg-slate-800 text-white px-8 py-4 rounded-2xl font-medium transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
           >
             <Shield size={20} />
