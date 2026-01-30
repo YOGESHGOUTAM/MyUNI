@@ -4,7 +4,7 @@ import { escalationApi } from "../services/api";
 
 export default function AdminEscalations() {
   const [escalations, setEscalations] = useState([]);
-  const [allEscalations, setAllEscalations] = useState([]); // Store all escalations
+  const [allEscalations, setAllEscalations] = useState([]);
   const [replyModal, setReplyModal] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,9 +16,9 @@ export default function AdminEscalations() {
     try {
       setLoading(true);
       setError("");
-      const data = await escalationApi.getAll(); // Get all escalations without filter
-      setAllEscalations(data || []); // Store all
-      setEscalations(data || []); // Display all initially
+      const data = await escalationApi.getAll();
+      setAllEscalations(data || []);
+      setEscalations(data || []);
     } catch (err) {
       console.error("Load escalations error:", err);
       setError("Failed to load escalations. Please try again.");
@@ -31,7 +31,6 @@ export default function AdminEscalations() {
     load();
   }, []);
 
-  // Filter escalations locally when filter changes
   useEffect(() => {
     if (filterStatus === "") {
       setEscalations(allEscalations);
@@ -51,32 +50,19 @@ export default function AdminEscalations() {
     try {
       setLoading(true);
       setError("");
-      // Send proper payload matching backend schema
       await escalationApi.reply(
         replyModal.id,
-        replyModal.question,  // Original question
-        replyText             // Admin's answer
+        replyModal.question,
+        replyText
       );
 
-      // Optimistically update local state for immediate UI feedback
-      setAllEscalations(prev =>
-        prev.map(esc =>
-          esc.id === replyModal.id
-            ? { ...esc, admin_answer: replyText, status: "resolved", resolved_at: new Date().toISOString() }
-            : esc
-        )
-      );
-      setEscalations(prev =>
-        prev.map(esc =>
-          esc.id === replyModal.id
-            ? { ...esc, admin_answer: replyText, status: "resolved", resolved_at: new Date().toISOString() }
-            : esc
-        )
-      );
+      const updatedEsc = { ...replyModal, admin_answer: replyText, status: "resolved", resolved_at: new Date().toISOString() };
+      setAllEscalations(prev => prev.map(esc => esc.id === replyModal.id ? updatedEsc : esc));
+      setEscalations(prev => prev.map(esc => esc.id === replyModal.id ? updatedEsc : esc));
 
       setReplyModal(null);
       setReplyText("");
-      setSuccess("Reply submitted successfully!");
+      setSuccess("Reply submitted successfully! Status updated to resolved.");
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       console.error("Reply error:", err);
@@ -114,14 +100,12 @@ export default function AdminEscalations() {
     }
   };
 
-  // Calculate stats from ALL escalations (not filtered)
   const totalCount = allEscalations.length;
   const openCount = allEscalations.filter(e => !e.status || e.status === "open").length;
   const resolvedCount = allEscalations.filter(e => e.status === "resolved").length;
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
-      {/* Header with Logo */}
       <div className="max-w-7xl mx-auto mb-6">
         <div className="flex justify-between items-center">
           <div>
@@ -136,7 +120,6 @@ export default function AdminEscalations() {
       </div>
 
       <div className="max-w-7xl mx-auto">
-        {/* Stats & Filters Card */}
         <div className="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
           <div className="flex justify-between items-center mb-5">
             <h2 className="text-lg font-semibold text-slate-800">Dashboard</h2>
@@ -144,15 +127,15 @@ export default function AdminEscalations() {
               onClick={load}
               className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl flex items-center gap-2 transition-all text-sm"
               disabled={loading}
+              title="Refresh to load latest data"
             >
               <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
               Refresh
             </button>
           </div>
 
-          {/* Stats Grid - Always shows total counts regardless of filter */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-slate-100 text-slate-600 p-5 rounded-2xl">
+            <div className="bg-blue-50 text-blue-600 p-5 rounded-2xl">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-3xl font-bold">{totalCount}</p>
@@ -162,7 +145,7 @@ export default function AdminEscalations() {
               </div>
             </div>
 
-            <div className="bg-slate-100 text-slate-600 p-5 rounded-2xl">
+            <div className="bg-amber-50 text-amber-600 p-5 rounded-2xl">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-3xl font-bold">{openCount}</p>
@@ -172,7 +155,7 @@ export default function AdminEscalations() {
               </div>
             </div>
 
-            <div className="bg-slate-100 text-slate-600 p-5 rounded-2xl">
+            <div className="bg-green-50 text-green-600 p-5 rounded-2xl">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-3xl font-bold">{resolvedCount}</p>
@@ -183,13 +166,12 @@ export default function AdminEscalations() {
             </div>
           </div>
 
-          {/* Filter Buttons */}
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setFilterStatus("")}
               className={`px-4 py-2 rounded-2xl font-medium transition-all text-sm ${
                 filterStatus === "" 
-                  ? "bg-slate-200 text-slate-900 shadow-sm" 
+                  ? "bg-blue-500 text-white shadow-sm" 
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -199,7 +181,7 @@ export default function AdminEscalations() {
               onClick={() => setFilterStatus("open")}
               className={`px-4 py-2 rounded-2xl font-medium transition-all text-sm ${
                 filterStatus === "open" 
-                  ? "bg-slate-200 text-slate-900 shadow-sm" 
+                  ? "bg-amber-500 text-white shadow-sm" 
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -209,7 +191,7 @@ export default function AdminEscalations() {
               onClick={() => setFilterStatus("resolved")}
               className={`px-4 py-2 rounded-2xl font-medium transition-all text-sm ${
                 filterStatus === "resolved" 
-                  ? "bg-slate-200 text-slate-900 shadow-sm" 
+                  ? "bg-green-500 text-white shadow-sm" 
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -218,7 +200,6 @@ export default function AdminEscalations() {
           </div>
         </div>
 
-        {/* Success Message */}
         {success && (
           <div className="bg-green-50 border border-green-200 text-green-700 px-5 py-3 rounded-2xl mb-4 flex items-center gap-2 shadow-sm">
             <CheckCircle size={18} />
@@ -226,7 +207,6 @@ export default function AdminEscalations() {
           </div>
         )}
 
-        {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-3 rounded-2xl mb-4 flex items-center gap-2 shadow-sm">
             <AlertCircle size={18} />
@@ -234,15 +214,13 @@ export default function AdminEscalations() {
           </div>
         )}
 
-        {/* Loading State */}
         {loading && !escalations.length && (
           <div className="text-center py-16">
-            <RefreshCw className="animate-spin mx-auto text-slate-500 mb-3" size={32} />
+            <RefreshCw className="animate-spin mx-auto text-blue-500 mb-3" size={32} />
             <p className="text-slate-500 text-sm">Loading escalations...</p>
           </div>
         )}
 
-        {/* Empty State */}
         {!loading && escalations.length === 0 && (
           <div className="text-center py-16 bg-white rounded-3xl shadow-sm border border-slate-200">
             <div className="text-6xl mb-3">🎉</div>
@@ -250,7 +228,6 @@ export default function AdminEscalations() {
           </div>
         )}
 
-        {/* Escalations List */}
         <div className="space-y-4">
           {escalations.map((esc) => {
             const isResolved = esc.status === "resolved";
@@ -260,13 +237,12 @@ export default function AdminEscalations() {
                 key={esc.id}
                 className="bg-white rounded-3xl shadow-sm p-6 border border-slate-200 hover:shadow-md transition-all"
               >
-                {/* Header */}
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-2">
                     <span className={`px-3 py-1 rounded-xl text-xs font-semibold ${
                       isResolved 
                         ? "bg-green-100 text-green-700" 
-                        : "bg-slate-100 text-slate-700"
+                        : "bg-amber-100 text-amber-700"
                     }`}>
                       {esc.status ? esc.status.toUpperCase() : "OPEN"}
                     </span>
@@ -276,25 +252,22 @@ export default function AdminEscalations() {
                   </div>
                 </div>
 
-                {/* Question */}
-                <div className="mb-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                  <p className="text-xs text-slate-600 font-semibold mb-1">QUESTION</p>
+                <div className="mb-3 bg-blue-50 p-4 rounded-2xl border border-blue-200">
+                  <p className="text-xs text-blue-600 font-semibold mb-1">QUESTION</p>
                   <p className="text-slate-900 font-medium">{esc.question}</p>
                 </div>
 
-                {/* Bot Answer */}
-                <div className="mb-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                  <p className="text-xs text-slate-600 font-semibold mb-1">BOT ANSWER</p>
+                <div className="mb-3 bg-indigo-50 p-4 rounded-2xl border border-indigo-200">
+                  <p className="text-xs text-indigo-600 font-semibold mb-1">BOT ANSWER</p>
                   <p className="text-slate-700 text-sm">{esc.bot_answer || "N/A"}</p>
                   <p className="text-xs text-slate-400 mt-2">
                     Confidence: {esc.confidence ? (esc.confidence * 100).toFixed(1) + "%" : "N/A"}
                   </p>
                 </div>
 
-                {/* Admin Answer */}
                 {esc.admin_answer && (
-                  <div className="mb-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                    <p className="text-xs text-slate-600 font-semibold mb-1">ADMIN ANSWER</p>
+                  <div className="mb-3 bg-green-50 p-4 rounded-2xl border border-green-200">
+                    <p className="text-xs text-green-600 font-semibold mb-1">ADMIN ANSWER</p>
                     <p className="text-slate-900 text-sm">{esc.admin_answer}</p>
                     {esc.resolved_at && (
                       <p className="text-xs text-slate-400 mt-2">
@@ -304,7 +277,6 @@ export default function AdminEscalations() {
                   </div>
                 )}
 
-                {/* Action Buttons */}
                 <div className="flex gap-2 mt-4">
                   <button
                     className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm disabled:opacity-50 text-sm font-medium"
@@ -314,13 +286,14 @@ export default function AdminEscalations() {
                       setError("");
                     }}
                     disabled={loading}
+                    title={isResolved ? "Edit your reply" : "Reply to this escalation"}
                   >
                     <MessageSquare size={16} />
                     {isResolved ? "Edit Reply" : "Reply"}
                   </button>
 
                   <button
-                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2.5 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm disabled:opacity-50 text-sm font-medium"
+                    className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm disabled:opacity-50 text-sm font-medium"
                     onClick={() => promote(esc)}
                     disabled={loading || !isResolved || !esc.admin_answer}
                     title={!isResolved ? "Resolve first" : !esc.admin_answer ? "Add reply first" : "Promote to FAQ"}
@@ -334,11 +307,10 @@ export default function AdminEscalations() {
           })}
         </div>
 
-        {/* Reply Modal */}
         {replyModal && (
           <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-3xl w-full max-w-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
-              <div className="bg-slate-100 p-6 rounded-t-3xl border-b border-slate-200 sticky top-0">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-t-3xl border-b border-slate-200 sticky top-0">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-semibold text-slate-800">
                     {replyModal.status === "resolved" ? "Edit Reply" : "Reply to Escalation"}
@@ -356,21 +328,18 @@ export default function AdminEscalations() {
               </div>
 
               <div className="p-6 space-y-5">
-                {/* Question Display */}
-                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                  <p className="text-xs text-slate-600 font-semibold mb-2">QUESTION</p>
+                <div className="bg-blue-50 p-5 rounded-2xl border border-blue-200">
+                  <p className="text-xs text-blue-600 font-semibold mb-2">QUESTION</p>
                   <p className="text-slate-900 font-medium">{replyModal.question}</p>
                 </div>
 
-                {/* Bot Answer Display */}
                 {replyModal.bot_answer && (
-                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                    <p className="text-xs text-slate-600 font-semibold mb-2">BOT'S ANSWER</p>
+                  <div className="bg-indigo-50 p-5 rounded-2xl border border-indigo-200">
+                    <p className="text-xs text-indigo-600 font-semibold mb-2">BOT'S ANSWER</p>
                     <p className="text-slate-700 text-sm">{replyModal.bot_answer}</p>
                   </div>
                 )}
 
-                {/* Reply Textarea */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wide">Your Answer</label>
                   <textarea
@@ -381,7 +350,6 @@ export default function AdminEscalations() {
                   />
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex justify-end gap-3 pt-4">
                   <button
                     className="px-6 py-2.5 text-slate-600 hover:bg-slate-100 border border-slate-200 rounded-2xl font-medium transition text-sm"

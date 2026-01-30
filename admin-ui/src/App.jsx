@@ -30,7 +30,10 @@ const Sidebar = React.memo(({ isOpen, setIsOpen }) => {
 
       {/* Sidebar */}
       <aside className={`
+        no-scroll-aside
         fixed lg:sticky top-0 h-screen
+        top: 0 left: 0;
+        document.body.style.overflow = "hidden"  
         w-72 bg-white border-r border-slate-200
         transition-transform duration-300 z-50
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -45,6 +48,7 @@ const Sidebar = React.memo(({ isOpen, setIsOpen }) => {
             <button
               onClick={() => setIsOpen(false)}
               className="lg:hidden hover:bg-slate-100 p-2 rounded-xl transition"
+              title="Close sidebar"
             >
               <X size={20} className="text-slate-600" />
             </button>
@@ -71,12 +75,13 @@ const Sidebar = React.memo(({ isOpen, setIsOpen }) => {
                     flex items-center gap-3 px-4 py-3 rounded-2xl
                     transition-all duration-200 group
                     ${isActive 
-                      ? 'bg-slate-200 text-slate-900 shadow-sm' 
-                      : 'text-slate-600 hover:bg-slate-100'
+                      ? 'bg-blue-50 text-blue-900 shadow-sm border border-blue-200' 
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     }
                   `}
+                  title={`Go to ${item.label}`}
                 >
-                  <Icon size={20} className={isActive ? '' : 'group-hover:scale-110 transition-transform'} />
+                  <Icon size={20} className={isActive ? 'text-blue-600' : 'group-hover:scale-110 transition-transform'} />
                   <span className="font-medium text-sm">{item.label}</span>
                 </Link>
               );
@@ -110,6 +115,7 @@ function App() {
             <button
               onClick={() => setSidebarOpen(true)}
               className="hover:bg-slate-100 p-2 rounded-xl transition"
+              title="Open sidebar"
             >
               <Menu size={24} className="text-slate-600" />
             </button>

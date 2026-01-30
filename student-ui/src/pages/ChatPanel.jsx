@@ -1,4 +1,5 @@
 import React from 'react';
+import { useEffect, useRef } from 'react';
 import ChatMessages from './ChatMessages';
 import MessageInput from './MessageInput';
 import EscalateButton from './EscalateButton';
@@ -12,10 +13,18 @@ const ChatPanel = ({
   hasSession,
   isEscalated
 }) => {
-  return (
-    <div className="flex-1 flex flex-col">
-      <ChatMessages messages={messages} loading={loading} />
+    const messagesEndRef = useRef(null);
+    const scrollToBottom = () => {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
 
+    useEffect(() => {
+        scrollToBottom();
+    },
+        [messages])
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <ChatMessages messages={messages} loading={loading} />
       {hasSession && (
         <div className="bg-white/70 backdrop-blur-sm border-t border-slate-200/50 p-6">
           {isEscalated ? (
@@ -36,8 +45,10 @@ const ChatPanel = ({
               <MessageInput onSend={onSendMessage} disabled={loading} />
             </>
           )}
+
         </div>
       )}
+        <div ref={messagesEndRef} />
 
       {!hasSession && (
         <div className="bg-white/70 backdrop-blur-sm border-t border-slate-200/50 p-6 text-center">

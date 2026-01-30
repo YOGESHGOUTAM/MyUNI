@@ -139,11 +139,11 @@ export default function AdminFaqs() {
         <div className="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-5">
             <div className="flex items-center gap-4">
-              <div className="bg-slate-100 text-slate-600 px-5 py-3 rounded-2xl">
+              <div className="bg-blue-50 text-blue-600 px-5 py-3 rounded-2xl">
                 <p className="text-2xl font-bold">{faqs.length}</p>
                 <p className="text-xs">Total FAQs</p>
               </div>
-              <div className="bg-slate-100 text-slate-600 px-5 py-3 rounded-2xl">
+              <div className="bg-indigo-50 text-indigo-600 px-5 py-3 rounded-2xl">
                 <p className="text-2xl font-bold">{filteredFaqs.length}</p>
                 <p className="text-xs">Showing</p>
               </div>
@@ -152,6 +152,7 @@ export default function AdminFaqs() {
             <button
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-2xl flex items-center gap-2 transition-all shadow-sm text-sm font-medium"
               onClick={openCreate}
+              title="Add a new FAQ"
             >
               <Plus size={18} />
               Add New FAQ
@@ -172,6 +173,7 @@ export default function AdminFaqs() {
               className="absolute right-2 top-2 bg-white hover:bg-slate-100 p-1.5 rounded-xl transition"
               onClick={loadFaqs}
               disabled={loading}
+              title="Refresh FAQ list"
             >
               <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
             </button>
@@ -197,7 +199,7 @@ export default function AdminFaqs() {
         {/* Loading State */}
         {loading && !faqs.length && (
           <div className="text-center py-16">
-            <RefreshCw className="animate-spin mx-auto text-slate-500 mb-3" size={32} />
+            <RefreshCw className="animate-spin mx-auto text-blue-500 mb-3" size={32} />
             <p className="text-slate-500 text-sm">Loading FAQs...</p>
           </div>
         )}
@@ -217,6 +219,7 @@ export default function AdminFaqs() {
             <button
               className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-2xl shadow-sm text-sm"
               onClick={openCreate}
+              title="Create your first FAQ"
             >
               Add Your First FAQ
             </button>
@@ -233,11 +236,11 @@ export default function AdminFaqs() {
               <div className="flex justify-between items-start gap-4">
                 <div className="flex-1">
                   <p className="font-semibold text-slate-800 text-base mb-2 flex items-start gap-2">
-                    <span className="text-slate-600 text-sm">Q:</span>
+                    <span className="text-blue-500 text-sm">Q:</span>
                     <span>{faq.canonical_question}</span>
                   </p>
                   <p className={`text-slate-600 text-sm leading-relaxed ${expandedFaq === faq.id ? "" : "line-clamp-2"}`}>
-                    <span className="font-medium text-slate-700">A:</span> {faq.answer_en}
+                    <span className="font-medium text-indigo-500">A:</span> {faq.answer_en}
                   </p>
                   {faq.answer_en?.length > 150 && (
                     <button
@@ -251,8 +254,9 @@ export default function AdminFaqs() {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-2xl flex items-center gap-1.5 transition-all text-sm"
+                    className="bg-amber-50 hover:bg-amber-100 text-amber-600 px-4 py-2 rounded-2xl flex items-center gap-1.5 transition-all text-sm"
                     onClick={() => openEdit(faq)}
+                    title="Edit this FAQ"
                   >
                     <Edit size={16} />
                     Edit
@@ -260,6 +264,7 @@ export default function AdminFaqs() {
                   <button
                     className="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-2xl flex items-center gap-1.5 transition-all text-sm"
                     onClick={() => setDeleteId(faq.id)}
+                    title="Delete this FAQ"
                   >
                     <Trash2 size={16} />
                     Delete
@@ -274,7 +279,7 @@ export default function AdminFaqs() {
         {modalOpen && (
           <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl">
-              <div className="bg-slate-100 p-6 rounded-t-3xl border-b border-slate-200">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-t-3xl border-b border-slate-200">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-semibold text-slate-800">
                     {editId ? "Edit FAQ" : "Create New FAQ"}
