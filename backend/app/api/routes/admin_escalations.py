@@ -35,7 +35,7 @@ def reply_escalation(escalation_id: int, payload: AdminResolution, db: Session =
     if not esc:
         raise HTTPException(404, "Not found")
 
-    esc.answer = payload.answer
+    esc.admin_answer = payload.answer
     esc.status = "resolved"
     esc.resolved_at = datetime.now()
 
