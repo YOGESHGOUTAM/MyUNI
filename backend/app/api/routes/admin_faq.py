@@ -1,7 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import uuid
 from app.db.session import get_db
 from app.db.models.faq import FAQ
 from app.schemas.faq import FAQCreate, FAQUpdate, FAQOut
@@ -31,7 +30,7 @@ def create_faq(payload: FAQCreate, db: Session = Depends(get_db)):
 
 @router.put("/{faq_id}", response_model=FAQOut)
 def update_faq(
-    faq_id: uuid.UUID,
+    faq_id: int,
     payload: FAQUpdate,
     db: Session = Depends(get_db),
 ):
@@ -76,7 +75,7 @@ def update_faq(
 
 
 @router.delete("/{faq_id}")
-def delete_faq(faq_id: uuid.UUID, db: Session = Depends(get_db)):
+def delete_faq(faq_id: int, db: Session = Depends(get_db)):
     faq = db.get(FAQ, faq_id)
     if not faq:
         raise HTTPException(404, "FAQ not found")
