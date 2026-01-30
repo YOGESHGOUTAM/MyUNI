@@ -66,7 +66,7 @@ export const escalationApi = {
   getById: (id) => httpMethods.get(`/admin/escalations/${id}`),
 
   // In escalationApi object
-    reply: (id, question, answer, resolvedAt = new Date().toISOString()) =>
+  reply: (id, question, answer, resolvedAt = new Date().toISOString()) =>
   httpMethods.post(`/admin/escalations/${id}/reply`, {
     question,  // Original question from the escalation
     answer,    // Admin's reply
@@ -113,7 +113,7 @@ export const api = {
 
   // Escalation shortcuts
   getEscalations: escalationApi.getAll,
-  replyEscalation: (id, question, answer, resolvedAt) => escalationApi.reply(id, question, answer, resolvedAt),
+  reply: (id, question, answer, resolvedAt) => escalationApi.reply(id, question, answer, resolvedAt),
   promoteEscalationToFaq: escalationApi.promoteToFaq,
 
   // Document shortcuts
