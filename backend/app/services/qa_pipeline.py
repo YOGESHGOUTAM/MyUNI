@@ -9,7 +9,7 @@ from app.services.prompt import build_prompt
 from app.services.llm import generate_answer
 
 
-FAQ_THRESHOLD = 0.85
+FAQ_THRESHOLD = 0.45
 DOC_THRESHOLD = 0.95   # more relaxed since PDFs vary
 
 
