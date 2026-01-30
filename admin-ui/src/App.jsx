@@ -1,3 +1,5 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Home, HelpCircle, AlertTriangle, FileText, Menu, X } from 'lucide-react';
 import { useState } from 'react';
@@ -6,7 +8,7 @@ import AdminFaqs from './pages/AdminFaqs.jsx';
 import AdminEscalations from './pages/AdminEscalations.jsx';
 import AdminDocuments from './pages/AdminDocuments.jsx';
 
-function Sidebar({ isOpen, setIsOpen }) {
+const Sidebar = React.memo(({ isOpen, setIsOpen }) => {
   const location = useLocation();
 
   const navItems = [
@@ -21,7 +23,7 @@ function Sidebar({ isOpen, setIsOpen }) {
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/10 backdrop-blur-sm z-40 lg:hidden transition-opacity"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -29,8 +31,7 @@ function Sidebar({ isOpen, setIsOpen }) {
       {/* Sidebar */}
       <aside className={`
         fixed lg:sticky top-0 h-screen
-        w-72 bg-white/70 backdrop-blur-sm 
-        border-r border-slate-200/50
+        w-72 bg-white border-r border-slate-200
         transition-transform duration-300 z-50
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
@@ -50,8 +51,8 @@ function Sidebar({ isOpen, setIsOpen }) {
           </div>
 
           {/* Admin Badge */}
-          <div className="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl p-4 mb-6 border border-blue-200/50">
-            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">Admin Panel</p>
+          <div className="bg-slate-100 rounded-2xl p-4 mb-6 border border-slate-200">
+            <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1">Admin Panel</p>
             <p className="text-sm text-slate-700">Manage your campus</p>
           </div>
 
@@ -70,7 +71,7 @@ function Sidebar({ isOpen, setIsOpen }) {
                     flex items-center gap-3 px-4 py-3 rounded-2xl
                     transition-all duration-200 group
                     ${isActive 
-                      ? 'bg-blue-500 text-white shadow-sm' 
+                      ? 'bg-slate-200 text-slate-900 shadow-sm' 
                       : 'text-slate-600 hover:bg-slate-100'
                     }
                   `}
@@ -83,7 +84,7 @@ function Sidebar({ isOpen, setIsOpen }) {
           </nav>
 
           {/* Footer */}
-          <div className="pt-6 border-t border-slate-200/50">
+          <div className="pt-6 border-t border-slate-200">
             <p className="text-xs text-slate-400 text-center">
               © 2025 MyUNI Admin
             </p>
@@ -92,20 +93,20 @@ function Sidebar({ isOpen, setIsOpen }) {
       </aside>
     </>
   );
-}
+});
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <Router>
-      <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="flex min-h-screen bg-slate-50">
         <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col min-w-0">
           {/* Mobile Header */}
-          <header className="lg:hidden sticky top-0 z-30 bg-white/70 backdrop-blur-sm border-b border-slate-200/50 p-4">
+          <header className="lg:hidden sticky top-0 z-30 bg-white border-b border-slate-200 p-4">
             <button
               onClick={() => setSidebarOpen(true)}
               className="hover:bg-slate-100 p-2 rounded-xl transition"

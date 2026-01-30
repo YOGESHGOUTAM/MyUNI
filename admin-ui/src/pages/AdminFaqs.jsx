@@ -119,7 +119,7 @@ export default function AdminFaqs() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+    <div className="min-h-screen bg-slate-50 p-6">
       {/* Header with Logo */}
       <div className="max-w-7xl mx-auto mb-6">
         <div className="flex justify-between items-center">
@@ -127,7 +127,7 @@ export default function AdminFaqs() {
             <h1 className="text-3xl font-semibold text-slate-800 mb-1">FAQ Management</h1>
             <p className="text-sm text-slate-500">Manage your frequently asked questions</p>
           </div>
-          <div className="px-6 py-3 rounded-4xl  flex items-center gap-1.5 shadow-lg">
+          <div className="px-6 py-3 rounded-4xl flex items-center gap-1.5 shadow-sm bg-white border border-slate-200">
             <span className="text-2xl">🎓</span>
             <span className="text-2xl font-semibold text-black">MyUNI</span>
           </div>
@@ -136,14 +136,14 @@ export default function AdminFaqs() {
 
       <div className="max-w-7xl mx-auto">
         {/* Stats & Search Card */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm p-6 mb-6 border border-slate-200/50">
+        <div className="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-5">
             <div className="flex items-center gap-4">
-              <div className="bg-blue-100/80 text-blue-600 px-5 py-3 rounded-2xl">
+              <div className="bg-slate-100 text-slate-600 px-5 py-3 rounded-2xl">
                 <p className="text-2xl font-bold">{faqs.length}</p>
                 <p className="text-xs">Total FAQs</p>
               </div>
-              <div className="bg-indigo-100/80 text-indigo-600 px-5 py-3 rounded-2xl">
+              <div className="bg-slate-100 text-slate-600 px-5 py-3 rounded-2xl">
                 <p className="text-2xl font-bold">{filteredFaqs.length}</p>
                 <p className="text-xs">Showing</p>
               </div>
@@ -169,7 +169,7 @@ export default function AdminFaqs() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <button
-              className="absolute right-2 top-2 bg-white hover:bg-slate-100 text-slate-500 p-1.5 rounded-xl transition"
+              className="absolute right-2 top-2 bg-white hover:bg-slate-100 p-1.5 rounded-xl transition"
               onClick={loadFaqs}
               disabled={loading}
             >
@@ -180,7 +180,7 @@ export default function AdminFaqs() {
 
         {/* Success Message */}
         {success && (
-          <div className="bg-green-100/80 border border-green-300/50 text-green-700 px-5 py-3 rounded-2xl mb-4 flex items-center gap-2 shadow-sm backdrop-blur-sm">
+          <div className="bg-green-50 border border-green-200 text-green-700 px-5 py-3 rounded-2xl mb-4 flex items-center gap-2 shadow-sm">
             <CheckCircle size={18} />
             <span className="text-sm font-medium">{success}</span>
           </div>
@@ -188,7 +188,7 @@ export default function AdminFaqs() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-100/80 border border-red-300/50 text-red-700 px-5 py-3 rounded-2xl mb-4 flex items-center gap-2 shadow-sm backdrop-blur-sm">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-3 rounded-2xl mb-4 flex items-center gap-2 shadow-sm">
             <AlertCircle size={18} />
             <span className="text-sm font-medium">{error}</span>
           </div>
@@ -197,21 +197,21 @@ export default function AdminFaqs() {
         {/* Loading State */}
         {loading && !faqs.length && (
           <div className="text-center py-16">
-            <RefreshCw className="animate-spin mx-auto text-blue-500 mb-3" size={32} />
+            <RefreshCw className="animate-spin mx-auto text-slate-500 mb-3" size={32} />
             <p className="text-slate-500 text-sm">Loading FAQs...</p>
           </div>
         )}
 
         {/* Empty State */}
         {!loading && filteredFaqs.length === 0 && faqs.length > 0 && (
-          <div className="text-center py-16 bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm border border-slate-200/50">
+          <div className="text-center py-16 bg-white rounded-3xl shadow-sm border border-slate-200">
             <Search className="mx-auto text-slate-300 mb-3" size={48} />
             <p className="text-slate-500">No FAQs match your search.</p>
           </div>
         )}
 
         {!loading && faqs.length === 0 && (
-          <div className="text-center py-16 bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm border border-slate-200/50">
+          <div className="text-center py-16 bg-white rounded-3xl shadow-sm border border-slate-200">
             <div className="text-6xl mb-3">📝</div>
             <p className="text-slate-500 mb-4">No FAQs yet. Start by adding one!</p>
             <button
@@ -227,17 +227,17 @@ export default function AdminFaqs() {
         <div className="space-y-4">
           {filteredFaqs.map((faq) => (
             <div
-              className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm p-6 border border-slate-200/50 hover:shadow-md transition-all"
+              className="bg-white rounded-3xl shadow-sm p-6 border border-slate-200 hover:shadow-md transition-all"
               key={faq.id}
             >
               <div className="flex justify-between items-start gap-4">
                 <div className="flex-1">
                   <p className="font-semibold text-slate-800 text-base mb-2 flex items-start gap-2">
-                    <span className="text-blue-500 text-sm">Q:</span>
+                    <span className="text-slate-600 text-sm">Q:</span>
                     <span>{faq.canonical_question}</span>
                   </p>
                   <p className={`text-slate-600 text-sm leading-relaxed ${expandedFaq === faq.id ? "" : "line-clamp-2"}`}>
-                    <span className="font-medium text-indigo-500">A:</span> {faq.answer_en}
+                    <span className="font-medium text-slate-700">A:</span> {faq.answer_en}
                   </p>
                   {faq.answer_en?.length > 150 && (
                     <button
@@ -251,14 +251,14 @@ export default function AdminFaqs() {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    className="bg-amber-100/80 hover:bg-amber-200/80 text-amber-700 px-4 py-2 rounded-2xl flex items-center gap-1.5 transition-all text-sm"
+                    className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-2xl flex items-center gap-1.5 transition-all text-sm"
                     onClick={() => openEdit(faq)}
                   >
                     <Edit size={16} />
                     Edit
                   </button>
                   <button
-                    className="bg-red-100/80 hover:bg-red-200/80 text-red-600 px-4 py-2 rounded-2xl flex items-center gap-1.5 transition-all text-sm"
+                    className="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-2xl flex items-center gap-1.5 transition-all text-sm"
                     onClick={() => setDeleteId(faq.id)}
                   >
                     <Trash2 size={16} />
@@ -272,9 +272,9 @@ export default function AdminFaqs() {
 
         {/* Create/Edit Modal */}
         {modalOpen && (
-          <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl">
-              <div className="bg-gradient-to-r from-blue-100 to-indigo-100 p-6 rounded-t-3xl border-b border-slate-200">
+              <div className="bg-slate-100 p-6 rounded-t-3xl border-b border-slate-200">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-semibold text-slate-800">
                     {editId ? "Edit FAQ" : "Create New FAQ"}
@@ -337,9 +337,9 @@ export default function AdminFaqs() {
 
         {/* Delete Confirmation Modal */}
         {deleteId && (
-          <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl p-8 text-center">
-              <div className="bg-red-100/80 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-red-50 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="text-red-600" size={28} />
               </div>
               <h3 className="text-xl font-semibold text-slate-800 mb-2">Delete FAQ?</h3>

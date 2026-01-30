@@ -57,10 +57,26 @@ export default function AdminEscalations() {
         replyModal.question,  // Original question
         replyText             // Admin's answer
       );
+
+      // Optimistically update local state for immediate UI feedback
+      setAllEscalations(prev =>
+        prev.map(esc =>
+          esc.id === replyModal.id
+            ? { ...esc, admin_answer: replyText, status: "resolved", resolved_at: new Date().toISOString() }
+            : esc
+        )
+      );
+      setEscalations(prev =>
+        prev.map(esc =>
+          esc.id === replyModal.id
+            ? { ...esc, admin_answer: replyText, status: "resolved", resolved_at: new Date().toISOString() }
+            : esc
+        )
+      );
+
       setReplyModal(null);
       setReplyText("");
       setSuccess("Reply submitted successfully!");
-      await load();
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       console.error("Reply error:", err);
@@ -104,7 +120,7 @@ export default function AdminEscalations() {
   const resolvedCount = allEscalations.filter(e => e.status === "resolved").length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+    <div className="min-h-screen bg-slate-50 p-6">
       {/* Header with Logo */}
       <div className="max-w-7xl mx-auto mb-6">
         <div className="flex justify-between items-center">
@@ -112,7 +128,7 @@ export default function AdminEscalations() {
             <h1 className="text-3xl font-semibold text-slate-800 mb-1">Escalation Management</h1>
             <p className="text-sm text-slate-500">Review and respond to user escalations</p>
           </div>
-          <div className="flex items-center gap-2 bg-white/70 backdrop-blur-sm px-6 py-3 rounded-2xl border border-slate-200/50 shadow-sm">
+          <div className="flex items-center gap-2 bg-white px-6 py-3 rounded-2xl border border-slate-200 shadow-sm">
             <span className="text-2xl">🎓</span>
             <span className="text-xl font-semibold text-slate-800">MyUNI</span>
           </div>
@@ -121,7 +137,7 @@ export default function AdminEscalations() {
 
       <div className="max-w-7xl mx-auto">
         {/* Stats & Filters Card */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm p-6 mb-6 border border-slate-200/50">
+        <div className="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
           <div className="flex justify-between items-center mb-5">
             <h2 className="text-lg font-semibold text-slate-800">Dashboard</h2>
             <button
@@ -136,7 +152,7 @@ export default function AdminEscalations() {
 
           {/* Stats Grid - Always shows total counts regardless of filter */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-blue-100/80 text-blue-600 p-5 rounded-2xl">
+            <div className="bg-slate-100 text-slate-600 p-5 rounded-2xl">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-3xl font-bold">{totalCount}</p>
@@ -146,7 +162,7 @@ export default function AdminEscalations() {
               </div>
             </div>
 
-            <div className="bg-amber-100/80 text-amber-600 p-5 rounded-2xl">
+            <div className="bg-slate-100 text-slate-600 p-5 rounded-2xl">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-3xl font-bold">{openCount}</p>
@@ -156,7 +172,7 @@ export default function AdminEscalations() {
               </div>
             </div>
 
-            <div className="bg-green-100/80 text-green-600 p-5 rounded-2xl">
+            <div className="bg-slate-100 text-slate-600 p-5 rounded-2xl">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-3xl font-bold">{resolvedCount}</p>
@@ -173,7 +189,7 @@ export default function AdminEscalations() {
               onClick={() => setFilterStatus("")}
               className={`px-4 py-2 rounded-2xl font-medium transition-all text-sm ${
                 filterStatus === "" 
-                  ? "bg-blue-500 text-white shadow-sm" 
+                  ? "bg-slate-200 text-slate-900 shadow-sm" 
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -183,7 +199,7 @@ export default function AdminEscalations() {
               onClick={() => setFilterStatus("open")}
               className={`px-4 py-2 rounded-2xl font-medium transition-all text-sm ${
                 filterStatus === "open" 
-                  ? "bg-amber-500 text-white shadow-sm" 
+                  ? "bg-slate-200 text-slate-900 shadow-sm" 
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -193,7 +209,7 @@ export default function AdminEscalations() {
               onClick={() => setFilterStatus("resolved")}
               className={`px-4 py-2 rounded-2xl font-medium transition-all text-sm ${
                 filterStatus === "resolved" 
-                  ? "bg-green-500 text-white shadow-sm" 
+                  ? "bg-slate-200 text-slate-900 shadow-sm" 
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -204,7 +220,7 @@ export default function AdminEscalations() {
 
         {/* Success Message */}
         {success && (
-          <div className="bg-green-100/80 border border-green-300/50 text-green-700 px-5 py-3 rounded-2xl mb-4 flex items-center gap-2 shadow-sm backdrop-blur-sm">
+          <div className="bg-green-50 border border-green-200 text-green-700 px-5 py-3 rounded-2xl mb-4 flex items-center gap-2 shadow-sm">
             <CheckCircle size={18} />
             <span className="text-sm font-medium">{success}</span>
           </div>
@@ -212,7 +228,7 @@ export default function AdminEscalations() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-100/80 border border-red-300/50 text-red-700 px-5 py-3 rounded-2xl mb-4 flex items-center gap-2 shadow-sm backdrop-blur-sm">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-3 rounded-2xl mb-4 flex items-center gap-2 shadow-sm">
             <AlertCircle size={18} />
             <span className="text-sm font-medium">{error}</span>
           </div>
@@ -221,14 +237,14 @@ export default function AdminEscalations() {
         {/* Loading State */}
         {loading && !escalations.length && (
           <div className="text-center py-16">
-            <RefreshCw className="animate-spin mx-auto text-blue-500 mb-3" size={32} />
+            <RefreshCw className="animate-spin mx-auto text-slate-500 mb-3" size={32} />
             <p className="text-slate-500 text-sm">Loading escalations...</p>
           </div>
         )}
 
         {/* Empty State */}
         {!loading && escalations.length === 0 && (
-          <div className="text-center py-16 bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm border border-slate-200/50">
+          <div className="text-center py-16 bg-white rounded-3xl shadow-sm border border-slate-200">
             <div className="text-6xl mb-3">🎉</div>
             <p className="text-slate-500">No escalations found. All clear!</p>
           </div>
@@ -242,15 +258,15 @@ export default function AdminEscalations() {
             return (
               <div
                 key={esc.id}
-                className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm p-6 border border-slate-200/50 hover:shadow-md transition-all"
+                className="bg-white rounded-3xl shadow-sm p-6 border border-slate-200 hover:shadow-md transition-all"
               >
                 {/* Header */}
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-2">
                     <span className={`px-3 py-1 rounded-xl text-xs font-semibold ${
                       isResolved 
-                        ? "bg-green-100/80 text-green-700" 
-                        : "bg-amber-100/80 text-amber-700"
+                        ? "bg-green-100 text-green-700" 
+                        : "bg-slate-100 text-slate-700"
                     }`}>
                       {esc.status ? esc.status.toUpperCase() : "OPEN"}
                     </span>
@@ -261,14 +277,14 @@ export default function AdminEscalations() {
                 </div>
 
                 {/* Question */}
-                <div className="mb-3 bg-blue-50/80 p-4 rounded-2xl border border-blue-200/50">
-                  <p className="text-xs text-blue-600 font-semibold mb-1">QUESTION</p>
+                <div className="mb-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                  <p className="text-xs text-slate-600 font-semibold mb-1">QUESTION</p>
                   <p className="text-slate-900 font-medium">{esc.question}</p>
                 </div>
 
                 {/* Bot Answer */}
-                <div className="mb-3 bg-indigo-50/80 p-4 rounded-2xl border border-indigo-200/50">
-                  <p className="text-xs text-indigo-600 font-semibold mb-1">BOT ANSWER</p>
+                <div className="mb-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                  <p className="text-xs text-slate-600 font-semibold mb-1">BOT ANSWER</p>
                   <p className="text-slate-700 text-sm">{esc.bot_answer || "N/A"}</p>
                   <p className="text-xs text-slate-400 mt-2">
                     Confidence: {esc.confidence ? (esc.confidence * 100).toFixed(1) + "%" : "N/A"}
@@ -277,8 +293,8 @@ export default function AdminEscalations() {
 
                 {/* Admin Answer */}
                 {esc.admin_answer && (
-                  <div className="mb-3 bg-green-50/80 p-4 rounded-2xl border border-green-200/50">
-                    <p className="text-xs text-green-600 font-semibold mb-1">ADMIN ANSWER</p>
+                  <div className="mb-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <p className="text-xs text-slate-600 font-semibold mb-1">ADMIN ANSWER</p>
                     <p className="text-slate-900 text-sm">{esc.admin_answer}</p>
                     {esc.resolved_at && (
                       <p className="text-xs text-slate-400 mt-2">
@@ -304,7 +320,7 @@ export default function AdminEscalations() {
                   </button>
 
                   <button
-                    className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm disabled:opacity-50 text-sm font-medium"
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2.5 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm disabled:opacity-50 text-sm font-medium"
                     onClick={() => promote(esc)}
                     disabled={loading || !isResolved || !esc.admin_answer}
                     title={!isResolved ? "Resolve first" : !esc.admin_answer ? "Add reply first" : "Promote to FAQ"}
@@ -320,9 +336,9 @@ export default function AdminEscalations() {
 
         {/* Reply Modal */}
         {replyModal && (
-          <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-3xl w-full max-w-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
-              <div className="bg-gradient-to-r from-blue-100 to-indigo-100 p-6 rounded-t-3xl border-b border-slate-200 sticky top-0">
+              <div className="bg-slate-100 p-6 rounded-t-3xl border-b border-slate-200 sticky top-0">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-semibold text-slate-800">
                     {replyModal.status === "resolved" ? "Edit Reply" : "Reply to Escalation"}
@@ -341,15 +357,15 @@ export default function AdminEscalations() {
 
               <div className="p-6 space-y-5">
                 {/* Question Display */}
-                <div className="bg-blue-50/80 p-5 rounded-2xl border border-blue-200/50">
-                  <p className="text-xs text-blue-600 font-semibold mb-2">QUESTION</p>
+                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                  <p className="text-xs text-slate-600 font-semibold mb-2">QUESTION</p>
                   <p className="text-slate-900 font-medium">{replyModal.question}</p>
                 </div>
 
                 {/* Bot Answer Display */}
                 {replyModal.bot_answer && (
-                  <div className="bg-indigo-50/80 p-5 rounded-2xl border border-indigo-200/50">
-                    <p className="text-xs text-indigo-600 font-semibold mb-2">BOT'S ANSWER</p>
+                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                    <p className="text-xs text-slate-600 font-semibold mb-2">BOT'S ANSWER</p>
                     <p className="text-slate-700 text-sm">{replyModal.bot_answer}</p>
                   </div>
                 )}
