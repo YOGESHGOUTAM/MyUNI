@@ -9,7 +9,7 @@ class FAQUpdate(BaseModel):
     answer_en: str | None = None
 
 class FAQOut(BaseModel):
-    id: uuid.UUID
+    id: int
     canonical_question: str
     answer_en: str
 

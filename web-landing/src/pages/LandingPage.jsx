@@ -206,7 +206,7 @@ const LandingPage = () => {
 
           <div className="flex justify-center gap-6 mb-8">
             <a
-              href="https://github.com/YOGESHGOUTAM"
+              href="https://github.com/YOGESHGOUTAM/MyUNI"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition group"
