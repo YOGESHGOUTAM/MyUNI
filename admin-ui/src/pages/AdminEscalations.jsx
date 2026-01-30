@@ -51,7 +51,12 @@ export default function AdminEscalations() {
     try {
       setLoading(true);
       setError("");
-      await escalationApi.reply(replyModal.id, replyText);
+      // Send proper payload matching backend schema
+      await escalationApi.reply(
+        replyModal.id,
+        replyModal.question,  // Original question
+        replyText             // Admin's answer
+      );
       setReplyModal(null);
       setReplyText("");
       setSuccess("Reply submitted successfully!");

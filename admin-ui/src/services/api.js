@@ -1,5 +1,3 @@
-// services/api.js - Centralized API Service
-
 export const API_BASE = import.meta.env.VITE_API_URL;
 
 // Base HTTP methods with error handling
@@ -65,13 +63,12 @@ export const escalationApi = {
 
   getById: (id) => httpMethods.get(`/admin/escalations/${id}`),
 
-  // In escalationApi object
-  reply: (id, question, answer, resolvedAt = new Date().toISOString()) =>
-  httpMethods.post(`/admin/escalations/${id}/reply`, {
-    question,  // Original question from the escalation
-    answer,    // Admin's reply
-    resolved_at: resolvedAt  // Current timestamp (server may override)
-  }),
+  reply: (id, question, answer) =>
+    httpMethods.post(`/admin/escalations/${id}/reply`, {
+      question: question,
+      answer: answer,
+      resolved_at: new Date().toISOString()
+    }),
 
   promoteToFaq: (id) =>
     fetch(`${API_BASE}/admin/escalations/${id}/promote/faq`, {
@@ -113,7 +110,7 @@ export const api = {
 
   // Escalation shortcuts
   getEscalations: escalationApi.getAll,
-  reply: (id, question, answer, resolvedAt) => escalationApi.reply(id, question, answer, resolvedAt),
+  replyEscalation: (id, question, answer) => escalationApi.reply(id, question, answer),
   promoteEscalationToFaq: escalationApi.promoteToFaq,
 
   // Document shortcuts
