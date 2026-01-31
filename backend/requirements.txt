@@ -13,3 +13,8 @@ slowapi
 pypdf
 python-docx
 python-multipart
+pytesseract
+pdf2image
+pillow
+pypdf
+python-docx

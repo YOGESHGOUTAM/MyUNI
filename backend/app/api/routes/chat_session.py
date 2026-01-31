@@ -82,25 +82,19 @@ def get_history(
             "created_at": m.created_at
         })
 
-    # Also include escalation admin replies if exist
-    escalations = (
+    escalation = (
         db.query(Escalation)
-        .filter(Escalation.session_id == session_id,
-                Escalation.status == "resolved",
-                Escalation.admin_answer.isnot(None))
-        .all()
+        .filter(Escalation.session_id == session_id)
+        .order_by(Escalation.created_at.desc())
+        .first()
     )
 
-    for e in escalations:
-        out.append({
-            "role": "admin",
-            "content": e.admin_answer,
-            "created_at": e.resolved_at
-        })
+    escalation_status = escalation.status if escalation else None
 
     out.sort(key=lambda x: x["created_at"].timestamp())
 
     return {
         "session_id": session_id,
-        "messages": out
+        "messages": out,
+        "escalation_status": escalation_status
     }

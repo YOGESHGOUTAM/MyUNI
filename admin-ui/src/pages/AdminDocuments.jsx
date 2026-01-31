@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
-import { FileText, Upload, Trash2, X, RefreshCw, AlertCircle, CheckCircle, File } from "lucide-react";
+import { FileText, Upload, Trash2, X, RefreshCw, AlertCircle, CheckCircle, File, Eye, Edit } from "lucide-react";
 import { documentApi } from "../services/api";
 
 export default function AdminDocuments() {
   const [docs, setDocs] = useState([]);
   const [uploadModal, setUploadModal] = useState(false);
+  const [viewModal, setViewModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [uploadProgress, setUploadProgress] = useState(false);
+  const [viewingDoc, setViewingDoc] = useState(null);
+  const [editingDoc, setEditingDoc] = useState(null);
+  const [editText, setEditText] = useState("");
 
   const load = async () => {
     try {
@@ -64,6 +69,61 @@ export default function AdminDocuments() {
     }
   };
 
+  const viewDocument = async (doc) => {
+    try {
+      setLoading(true);
+      setError("");
+      const fullDoc = await documentApi.getById(doc.id);
+      setViewingDoc(fullDoc);
+      setViewModal(true);
+    } catch (err) {
+      console.error("View document error:", err);
+      setError("Failed to load document content.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openEditDocument = async (doc) => {
+    try {
+      setLoading(true);
+      setError("");
+      const fullDoc = await documentApi.getById(doc.id);
+      setEditingDoc(fullDoc);
+      setEditText(fullDoc.final_text || "");
+      setEditModal(true);
+    } catch (err) {
+      console.error("Load document error:", err);
+      setError("Failed to load document for editing.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveDocumentText = async () => {
+    if (!editText.trim()) {
+      setError("Document text cannot be empty.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+      await documentApi.updateText(editingDoc.id, editText);
+      setSuccess("Document updated and re-embedded successfully!");
+      setEditModal(false);
+      setEditingDoc(null);
+      setEditText("");
+      await load();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      console.error("Update document error:", err);
+      setError("Failed to update document. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const remove = async () => {
     if (!deleteId) return;
 
@@ -103,7 +163,7 @@ export default function AdminDocuments() {
       <div className="max-w-7xl mx-auto mb-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-4xl font-semibold text-slate-800 mb-1">Document Management</h1>
+            <h1 className="text-3xl font-semibold text-slate-800 mb-1">Document Management</h1>
             <p className="text-sm text-slate-500">Upload and manage your knowledge base documents</p>
           </div>
           <div className="px-6 py-3 rounded-4xl flex items-center gap-1.5 shadow-sm bg-white border border-slate-200">
@@ -223,20 +283,149 @@ export default function AdminDocuments() {
                     )}
                   </div>
 
-                  <button
-                    onClick={() => setDeleteId(doc.id)}
-                    className="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2.5 rounded-2xl w-full flex items-center justify-center gap-2 transition-all text-sm font-medium"
-                    title="Delete this document"
-                  >
-                    <Trash2 size={16} />
-                    Delete
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => viewDocument(doc)}
+                      className="bg-purple-50 hover:bg-purple-100 text-purple-600 px-4 py-2.5 rounded-2xl w-full flex items-center justify-center gap-2 transition-all text-sm font-medium"
+                      title="View document content"
+                    >
+                      <Eye size={16} />
+                      View Text
+                    </button>
+                    <button
+                      onClick={() => openEditDocument(doc)}
+                      className="bg-amber-50 hover:bg-amber-100 text-amber-600 px-4 py-2.5 rounded-2xl w-full flex items-center justify-center gap-2 transition-all text-sm font-medium"
+                      title="Edit document content"
+                    >
+                      <Edit size={16} />
+                      Edit Text
+                    </button>
+                    <button
+                      onClick={() => setDeleteId(doc.id)}
+                      className="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2.5 rounded-2xl w-full flex items-center justify-center gap-2 transition-all text-sm font-medium"
+                      title="Delete this document"
+                    >
+                      <Trash2 size={16} />
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
 
+        {/* View Document Modal */}
+        {viewModal && viewingDoc && (
+          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+            <div className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-t-3xl border-b border-slate-200">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-xl font-semibold text-slate-800">{viewingDoc.title}</h3>
+                    <p className="text-sm text-slate-500 capitalize">{viewingDoc.source_type}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setViewModal(false);
+                      setViewingDoc(null);
+                    }}
+                    className="text-slate-500 hover:bg-white/50 p-2 rounded-xl transition"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 overflow-y-auto flex-1">
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                  <pre className="whitespace-pre-wrap font-sans text-sm text-slate-700 leading-relaxed">
+                    {viewingDoc.final_text || "No content available."}
+                  </pre>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-slate-200 bg-slate-50 rounded-b-3xl">
+                <button
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-2xl font-medium transition shadow-sm text-sm"
+                  onClick={() => {
+                    setViewModal(false);
+                    setViewingDoc(null);
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Document Modal */}
+        {editModal && editingDoc && (
+          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+            <div className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-t-3xl border-b border-slate-200">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-xl font-semibold text-slate-800">Edit Document</h3>
+                    <p className="text-sm text-slate-500">{editingDoc.title}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setEditModal(false);
+                      setEditingDoc(null);
+                      setEditText("");
+                      setError("");
+                    }}
+                    className="text-slate-500 hover:bg-white/50 p-2 rounded-xl transition"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 overflow-y-auto flex-1">
+                <label className="block text-xs font-semibold text-slate-600 mb-3 uppercase tracking-wide">
+                  Document Content
+                </label>
+                <textarea
+                  className="w-full h-96 border border-slate-200 bg-slate-50 p-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition resize-none text-sm font-mono"
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  placeholder="Enter document content..."
+                />
+                <p className="text-xs text-slate-500 mt-3">
+                  💡 Editing this text will re-chunk and re-embed the document for semantic search.
+                </p>
+              </div>
+
+              <div className="p-6 border-t border-slate-200 bg-slate-50 rounded-b-3xl">
+                <div className="flex gap-3">
+                  <button
+                    className="flex-1 px-6 py-2.5 text-slate-600 hover:bg-slate-100 border border-slate-200 rounded-2xl font-medium transition text-sm"
+                    onClick={() => {
+                      setEditModal(false);
+                      setEditingDoc(null);
+                      setEditText("");
+                      setError("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="flex-1 bg-amber-500 hover:bg-amber-600 text-white px-6 py-2.5 rounded-2xl font-medium transition shadow-sm disabled:opacity-50 text-sm"
+                    onClick={saveDocumentText}
+                    disabled={loading || !editText.trim()}
+                  >
+                    {loading ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Upload Modal */}
         {uploadModal && (
           <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl">
@@ -328,6 +517,7 @@ export default function AdminDocuments() {
           </div>
         )}
 
+        {/* Delete Confirmation Modal */}
         {deleteId && (
           <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl p-8 text-center">
@@ -336,7 +526,7 @@ export default function AdminDocuments() {
               </div>
               <h3 className="text-xl font-semibold text-slate-800 mb-2">Delete Document?</h3>
               <p className="text-slate-500 mb-6 text-sm">
-                This action cannot be undone.
+                This action cannot be undone. All document chunks will be deleted.
               </p>
               <div className="flex gap-3">
                 <button

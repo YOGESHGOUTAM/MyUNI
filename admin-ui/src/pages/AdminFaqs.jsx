@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
-import { Edit, Trash2, Plus, X, Search, RefreshCw, ChevronDown, ChevronUp, AlertCircle, CheckCircle } from "lucide-react";
+import { Edit, Trash2, Plus, X, Search, RefreshCw, ChevronDown, ChevronUp, AlertCircle, CheckCircle, Eye, Code } from "lucide-react";
 import { faqApi } from "../services/api";
 
 export default function AdminFaqs() {
   const [faqs, setFaqs] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
+  const [questionsJson, setQuestionsJson] = useState("[]");
   const [deleteId, setDeleteId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [viewingFaq, setViewingFaq] = useState(null);
 
   const loadFaqs = async () => {
     try {
@@ -33,10 +36,22 @@ export default function AdminFaqs() {
     loadFaqs();
   }, []);
 
+  const openView = (faq) => {
+    setViewingFaq(faq);
+    setViewModalOpen(true);
+  };
+
   const openEdit = (faq) => {
     setEditId(faq.id);
     setQuestion(faq.canonical_question);
     setAnswer(faq.answer_en);
+
+    // Extract question variants (excluding canonical)
+    const variants = faq.questions
+      ?.filter(q => q.question_text !== faq.canonical_question)
+      .map(q => q.question_text) || [];
+
+    setQuestionsJson(JSON.stringify(variants, null, 2));
     setModalOpen(true);
     setError("");
     setSuccess("");
@@ -46,6 +61,7 @@ export default function AdminFaqs() {
     setEditId(null);
     setQuestion("");
     setAnswer("");
+    setQuestionsJson("[]");
     setModalOpen(true);
     setError("");
     setSuccess("");
@@ -57,6 +73,18 @@ export default function AdminFaqs() {
       return;
     }
 
+    let questionVariants = [];
+    try {
+      questionVariants = JSON.parse(questionsJson);
+      if (!Array.isArray(questionVariants)) {
+        setError("Questions must be a JSON array.");
+        return;
+      }
+    } catch (err) {
+      setError("Invalid JSON format for questions.");
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
@@ -64,6 +92,7 @@ export default function AdminFaqs() {
       const payload = {
         canonical_question: question,
         answer_en: answer,
+        questions: questionVariants,
       };
 
       if (editId) {
@@ -77,6 +106,7 @@ export default function AdminFaqs() {
       setModalOpen(false);
       setQuestion("");
       setAnswer("");
+      setQuestionsJson("[]");
       setEditId(null);
       await loadFaqs();
 
@@ -251,8 +281,24 @@ export default function AdminFaqs() {
                       {expandedFaq === faq.id ? "Show Less" : "Show More"}
                     </button>
                   )}
+
+                  {/* Question count badge */}
+                  {faq.questions && faq.questions.length > 1 && (
+                    <div className="mt-3 inline-flex items-center gap-1.5 bg-purple-50 text-purple-600 px-3 py-1 rounded-xl text-xs font-medium">
+                      <Code size={12} />
+                      {faq.questions.length} question variant{faq.questions.length !== 1 ? 's' : ''}
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2">
+                  <button
+                    className="bg-purple-50 hover:bg-purple-100 text-purple-600 px-4 py-2 rounded-2xl flex items-center gap-1.5 transition-all text-sm"
+                    onClick={() => openView(faq)}
+                    title="View all question variants"
+                  >
+                    <Eye size={16} />
+                    View
+                  </button>
                   <button
                     className="bg-amber-50 hover:bg-amber-100 text-amber-600 px-4 py-2 rounded-2xl flex items-center gap-1.5 transition-all text-sm"
                     onClick={() => openEdit(faq)}
@@ -275,10 +321,95 @@ export default function AdminFaqs() {
           ))}
         </div>
 
-        {/* Create/Edit Modal */}
+        {/* View Modal - Shows all questions and answer */}
+        {viewModalOpen && viewingFaq && (
+          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-3xl w-full max-w-3xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-t-3xl border-b border-slate-200">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-semibold text-slate-800">FAQ Details</h3>
+                  <button
+                    onClick={() => {
+                      setViewModalOpen(false);
+                      setViewingFaq(null);
+                    }}
+                    className="text-slate-500 hover:bg-white/50 p-2 rounded-xl transition"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-6 overflow-y-auto flex-1">
+                {/* Canonical Question */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wide">
+                    Canonical Question
+                  </label>
+                  <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+                    <p className="text-slate-800 font-medium">{viewingFaq.canonical_question}</p>
+                  </div>
+                </div>
+
+                {/* Answer */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wide">
+                    Answer
+                  </label>
+                  <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-4">
+                    <p className="text-slate-700 leading-relaxed">{viewingFaq.answer_en}</p>
+                  </div>
+                </div>
+
+                {/* All Question Variants */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-3 uppercase tracking-wide">
+                    All Question Variants ({viewingFaq.questions?.length || 0})
+                  </label>
+                  <div className="space-y-2">
+                    {viewingFaq.questions?.map((q, idx) => (
+                      <div
+                        key={q.id}
+                        className={`rounded-2xl p-3 text-sm ${
+                          q.question_text === viewingFaq.canonical_question
+                            ? 'bg-blue-50 border border-blue-200 font-medium'
+                            : 'bg-slate-50 border border-slate-200'
+                        }`}
+                      >
+                        <div className="flex items-start gap-2">
+                          <span className="text-slate-400 text-xs mt-0.5 font-mono">#{idx + 1}</span>
+                          <p className="flex-1 text-slate-700">{q.question_text}</p>
+                          {q.question_text === viewingFaq.canonical_question && (
+                            <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
+                              Canonical
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-slate-200 bg-slate-50 rounded-b-3xl">
+                <button
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-2xl font-medium transition shadow-sm text-sm"
+                  onClick={() => {
+                    setViewModalOpen(false);
+                    setViewingFaq(null);
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Create/Edit Modal with JSON Editor */}
         {modalOpen && (
           <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl">
+            <div className="bg-white rounded-3xl w-full max-w-3xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-t-3xl border-b border-slate-200">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-semibold text-slate-800">
@@ -296,12 +427,14 @@ export default function AdminFaqs() {
                 </div>
               </div>
 
-              <div className="p-6 space-y-5">
+              <div className="p-6 space-y-5 overflow-y-auto flex-1">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wide">Question</label>
+                  <label className="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wide">
+                    Canonical Question
+                  </label>
                   <input
                     className="border border-slate-200 bg-slate-50 p-3.5 w-full rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition text-sm"
-                    placeholder="Enter the question..."
+                    placeholder="Enter the main question..."
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                   />
@@ -310,14 +443,43 @@ export default function AdminFaqs() {
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wide">Answer</label>
                   <textarea
-                    className="border border-slate-200 bg-slate-50 p-3.5 w-full h-40 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition resize-none text-sm"
+                    className="border border-slate-200 bg-slate-50 p-3.5 w-full h-32 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition resize-none text-sm"
                     placeholder="Enter the answer..."
                     value={answer}
                     onChange={(e) => setAnswer(e.target.value)}
                   />
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wide flex items-center gap-2">
+                    <Code size={14} />
+                    Question Variants (JSON Array)
+                  </label>
+                  <div className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-700">
+                    <div className="bg-slate-800 px-4 py-2 flex items-center gap-2 border-b border-slate-700">
+                      <div className="flex gap-1.5">
+                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      </div>
+                      <span className="text-slate-400 text-xs ml-2">questions.json</span>
+                    </div>
+                    <textarea
+                      className="w-full h-48 bg-slate-900 text-green-400 p-4 font-mono text-sm focus:outline-none resize-none"
+                      placeholder='[\n  "How do I reset my password?",\n  "Password reset help",\n  "Forgot password"\n]'
+                      value={questionsJson}
+                      onChange={(e) => setQuestionsJson(e.target.value)}
+                      spellCheck={false}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500 mt-2">
+                    💡 Add alternative phrasings of the canonical question. The canonical question is automatically included.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-slate-200 bg-slate-50 rounded-b-3xl">
+                <div className="flex justify-end gap-3">
                   <button
                     className="px-6 py-2.5 text-slate-600 hover:bg-slate-100 border border-slate-200 rounded-2xl font-medium transition text-sm"
                     onClick={() => {
@@ -332,7 +494,7 @@ export default function AdminFaqs() {
                     onClick={submitForm}
                     disabled={loading}
                   >
-                    {loading ? "Saving..." : "Save FAQ"}
+                    {loading ? "Saving..." : editId ? "Update FAQ" : "Create FAQ"}
                   </button>
                 </div>
               </div>
@@ -349,7 +511,7 @@ export default function AdminFaqs() {
               </div>
               <h3 className="text-xl font-semibold text-slate-800 mb-2">Delete FAQ?</h3>
               <p className="text-slate-500 mb-6 text-sm">
-                This action cannot be undone.
+                This action cannot be undone. All question variants will be deleted.
               </p>
               <div className="flex gap-3">
                 <button

@@ -50,6 +50,9 @@ export const faqApi = {
   update: (id, faq) => httpMethods.put(`/admin/faqs/${id}`, faq),
 
   delete: (id) => httpMethods.delete(`/admin/faqs/${id}`),
+
+  addQuestion: (id, questionText) =>
+    httpMethods.post(`/admin/faqs/${id}/questions`, { question_text: questionText }),
 };
 
 // ==================== ESCALATION APIs ====================
@@ -82,6 +85,11 @@ export const escalationApi = {
 // ==================== DOCUMENT APIs ====================
 export const documentApi = {
   getAll: () => httpMethods.get("/admin/documents/"),
+
+  getById: (docId) => httpMethods.get(`/admin/documents/${docId}`),
+
+  updateText: (docId, finalText) =>
+    httpMethods.put(`/admin/documents/${docId}`, { final_text: finalText }),
 
   upload: (formData) =>
     fetch(`${API_BASE}/admin/documents/upload`, {

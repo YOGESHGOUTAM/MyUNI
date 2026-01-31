@@ -12,7 +12,7 @@ const SidebarSessions = ({
   onLogout
 }) => {
   return (
-    <div className={`${isOpen ? 'w-80' : 'w-0'} bg-white/70 backdrop-blur-sm border-r border-slate-200/50 transition-all duration-300 overflow-hidden flex flex-col`}>
+    <div className={`${isOpen ? 'w-80' : 'w-0'} bg-white/70 backdrop-blur-sm border-r border-slate-200/50 transition-all duration-300 overflow-hidden flex flex-col sticky top-0 h-screen`}>
       <div className="p-6 border-b border-slate-200/50">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">

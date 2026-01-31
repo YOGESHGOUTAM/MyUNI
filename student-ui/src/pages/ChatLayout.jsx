@@ -68,11 +68,10 @@ const ChatLayout = () => {
   };
 
   const handleSendMessage = async (messageText) => {
-    if (!currentSession) return;
-
+    if (!currentSession||isEscalated) return;
     try {
       await sendMessage(currentSession, messageText);
-    } catch (error) {
+    } catch {
       alert('Failed to send message. Please try again.');
     }
   };
