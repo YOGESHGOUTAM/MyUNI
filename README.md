@@ -60,8 +60,19 @@ Simply enter any email and optional name — a user record is created automatica
 * Respond to unresolved queries
 * Resolution workflow management
 * Structured dataset generation for AI improvement
+* OCR-powered document ingestion
+* Bulk FAQ creation
+* Editable extracted knowledge
 
 ---
+
+## 🧾 OCR-Powered Knowledge Ingestion (New)
+
+Recently Added – Production Ready
+
+MyUni now supports OCR-based file uploads that allow admins to convert scanned or digital documents into verified, editable knowledge before it is used by the AI system.
+
+This enables universities to transform official PDFs, notices, and circulars directly into trusted FAQ data.
 
 ## 🧠 Intelligent Answer Pipeline (Confidence-Based)
 
@@ -139,12 +150,14 @@ This architecture is considered a production best practice for institutional AI 
 
 ## 🛠 Tech Stack
 
-| Layer | Technologies |
-| --- | --- |
-| **Frontend** | React (Vite), TailwindCSS, Component-driven UI |
-| **Backend** | FastAPI, SQLAlchemy ORM, Alembic migrations, Dockerized runtime |
-| **Database** | PostgreSQL, pgvector for semantic retrieval |
-| **AI Layer** | OpenAI API, Embedding similarity search, Confidence scoring pipeline |
+| Layer          | Technologies                                                         |
+|----------------|----------------------------------------------------------------------|
+| **Frontend**   | React (Vite), TailwindCSS, Component-driven UI                       |
+| **Backend**    | FastAPI, SQLAlchemy ORM, Alembic migrations, Dockerized runtime      |
+| **Database**   | PostgreSQL, pgvector for semantic retrieval                          |
+| **AI Layer**   | OpenAI API, Embedding similarity search, Confidence scoring pipeline |
+| **Ingestion**  | OCR via Tesseract(pytesseract) Human-verification after upload       |
+| **Deployment** | Railway, Vercel, Docker Compose                                      |
 
 ---
 
