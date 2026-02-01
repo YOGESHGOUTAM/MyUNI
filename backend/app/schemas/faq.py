@@ -39,3 +39,13 @@ class FAQOut(BaseModel):
 
 class FAQQuestionAdd(BaseModel):
     question_text: str = Field(..., min_length=5)
+
+class FAQBulkItem(BaseModel):
+    canonical_question: str = Field(..., min_length=5)
+    answer_en: str = Field(..., min_length=1)
+    questions: Optional[List[str]] = []
+
+class FAQBulkUploadResponse(BaseModel):
+    inserted: int
+    skipped: int
+    errors: List[str]
