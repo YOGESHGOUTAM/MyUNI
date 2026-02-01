@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.db.models.faq import FAQ
 from app.db.models.faq import FAQQuestion
-from app.schemas.faq import FAQCreate, FAQUpdate, FAQOut,FAQQuestionAdd
+from app.schemas.faq import FAQCreate, FAQUpdate, FAQOut,FAQQuestionAdd,FAQBulkItem, FAQBulkUploadResponse
 from app.services.embeddings import get_embedding
 
 router = APIRouter(prefix="/faqs", tags=["Admin FAQs"])
@@ -184,4 +184,72 @@ def add_faq_question(
     return {
         "status": "added",
         "question": question
+    }
+
+
+@router.post("/bulk-upload", response_model=FAQBulkUploadResponse)
+def bulk_upload_faqs(
+    payload: list[FAQBulkItem],
+    db: Session = Depends(get_db),
+):
+    inserted = 0
+    skipped = 0
+    errors: list[str] = []
+
+    for idx, item in enumerate(payload):
+        try:
+            canonical = item.canonical_question.strip()
+            answer = item.answer_en.strip()
+
+            if not canonical or not answer:
+                skipped += 1
+                errors.append(f"Item {idx}: Missing canonical question or answer")
+                continue
+
+            # 🔒 Prevent duplicate FAQs (canonical-level)
+            exists = db.query(FAQ).filter(
+                FAQ.canonical_question == canonical
+            ).first()
+
+            if exists:
+                skipped += 1
+                errors.append(f"Item {idx}: FAQ already exists")
+                continue
+
+            # 1️⃣ Create FAQ
+            faq = FAQ(
+                canonical_question=canonical,
+                answer_en=answer
+            )
+            db.add(faq)
+            db.commit()
+            db.refresh(faq)
+
+            # 2️⃣ Collect all questions (canonical + variants)
+            all_questions = {canonical}
+            for q in item.questions or []:
+                if q.strip():
+                    all_questions.add(q.strip())
+
+            # 3️⃣ Insert question variants
+            for q in all_questions:
+                emb = get_embedding(q)
+                db.add(FAQQuestion(
+                    faq_id=faq.id,
+                    question_text=q,
+                    embedding=emb
+                ))
+
+            db.commit()
+            inserted += 1
+
+        except Exception as e:
+            db.rollback()
+            skipped += 1
+            errors.append(f"Item {idx}: {str(e)}")
+
+    return {
+        "inserted": inserted,
+        "skipped": skipped,
+        "errors": errors
     }

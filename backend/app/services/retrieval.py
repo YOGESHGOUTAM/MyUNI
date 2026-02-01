@@ -10,23 +10,26 @@ def retrieve_faqs(query_embedding, k=3):
         result = conn.execute(
             text("""
                 SELECT
-                    canonical_question,
-                    answer_en,
-                    embedding <-> (:qvec)::vector AS distance
-                FROM faqs
+                    fq.question_text AS matched_question,
+                    f.canonical_question,
+                    f.answer_en,
+                    fq.embedding <-> (:qvec)::vector AS distance
+                FROM faq_questions fq
+                JOIN faqs f ON f.id = fq.faq_id
                 ORDER BY distance
                 LIMIT :k
             """),
             {"qvec": query_embedding, "k": k}
         ).mappings().all()
 
-    # 🔥 NORMALIZE OUTPUT FOR QA PIPELINE
+    # 🔥 Normalize output for QA pipeline
     faqs = []
     for row in result:
         faqs.append({
-            "question": row["canonical_question"],
+            "question": row["canonical_question"],      # main FAQ question
+            "matched_variant": row["matched_question"], # what actually matched
             "answer": row["answer_en"],
-            "distance": float(row["distance"])
+            "distance": float(row["distance"]),
         })
 
     return faqs
