@@ -1,9 +1,8 @@
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import Column, Integer, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-from pydantic import BaseModel,
+from pydantic import BaseModel,Field
 from app.db.base import Base
-from pydantic import BaseModel, Field
 from typing import List, Optional
 
 class FAQ(Base):
