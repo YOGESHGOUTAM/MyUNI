@@ -18,6 +18,10 @@ export const AuthProvider = ({ children }) => {
   const login = (userData) => {
     authStorage.save(userData);
     setUser(userData);
+
+    // NEW: Clear chat session storage to ensure new users start fresh (no leftover sessions)
+    sessionStorage.removeItem('currentSession');
+    sessionStorage.removeItem('isEscalated');
   };
 
   const logout = () => {
