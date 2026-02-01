@@ -89,16 +89,6 @@ const ChatLayout = () => {
     }
   };
 
-  // NEW: Added function to handle manual refresh of chat history
-  const handleRefreshHistory = async () => {
-    if (!currentSession) return;
-    try {
-      await loadChatHistory(currentSession);  // Reload to check for status updates
-    } catch (error) {
-      alert('Failed to refresh chat history.');
-    }
-  };
-
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {initialLoading ? (
@@ -155,7 +145,6 @@ const ChatLayout = () => {
               onEscalate={handleEscalate}
               hasSession={!!currentSession}
               isEscalated={isEscalated}
-              onRefreshHistory={handleRefreshHistory}  // NEW: Passed the refresh handler
             />
           </div>
         </>
